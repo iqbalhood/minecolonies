@@ -1129,9 +1129,6 @@ public class EntityCitizen extends EntityAgeable implements INpc
 
         final RenderBipedCitizen.Model model = getModelID();
 
-        String textureBase = "textures/entity/" + model.textureBase;
-        textureBase += female ? "female" : "male";
-
         final String textureBase = "textures/entity/" + model.textureBase + (female ? "Female" : "Male");
         final int moddedTextureId = (textureId % model.numTextures) + 1;
         texture = new ResourceLocation(Constants.MOD_ID, textureBase + moddedTextureId + renderMetadata + ".png");
