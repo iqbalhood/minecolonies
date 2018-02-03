@@ -87,10 +87,10 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         for (int i = 0; i < inputTagList.tagCount(); ++i)
         {
             final NBTTagCompound inputTag = inputTagList.getCompoundTagAt(i);
-            input.add(new ItemStack(inputTag));
+            input.add(ItemStack.loadItemStackFromNBT(inputTag));
         }
 
-        final ItemStack primaryOutput = new ItemStack(nbt);
+        final ItemStack primaryOutput = ItemStack.loadItemStackFromNBT(nbt);
         final Block intermediate = NBTUtil.readBlockState(nbt).getBlock();
         final int gridSize = nbt.getInteger(TAG_GRID);
         final IToken token = StandardFactoryController.getInstance().deserialize(nbt.getCompoundTag(TAG_TOKEN));

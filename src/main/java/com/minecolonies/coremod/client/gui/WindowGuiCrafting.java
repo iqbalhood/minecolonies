@@ -149,7 +149,7 @@ public class WindowGuiCrafting extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY)
     {
-        this.fontRenderer.drawString(I18n.format("container.crafting", new Object[0]), X_OFFSET, Y_OFFSET, GUI_COLOR);
+        this.fontRendererObj.drawString(I18n.format("container.crafting", new Object[0]), X_OFFSET, Y_OFFSET, GUI_COLOR);
     }
 
     /**

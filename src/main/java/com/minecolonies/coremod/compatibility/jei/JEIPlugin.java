@@ -6,7 +6,6 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
-import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 
@@ -21,12 +20,6 @@ public class JEIPlugin implements IModPlugin
 
     @Override
     public void registerIngredients(final IModIngredientRegistration iModIngredientRegistration)
-    {
-
-    }
-
-    @Override
-    public void registerCategories(final IRecipeCategoryRegistration iRecipeCategoryRegistration)
     {
 
     }

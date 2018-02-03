@@ -220,7 +220,7 @@ public class CompatabilityManager implements ICompatabilityManager
     {
         final NBTTagCompound compound = new NBTTagCompound();
         NBTUtil.writeBlockState(compound, state);
-        storage.getItemStanvock().writeToNBT(compound);
+        storage.getItemStack().writeToNBT(compound);
         return compound;
     }
 

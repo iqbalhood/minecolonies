@@ -16,7 +16,6 @@ import com.minecolonies.coremod.colony.requestsystem.management.handlers.LogHand
 import com.minecolonies.api.util.Log;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.NotNull;
@@ -452,7 +451,7 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
         {
             itemExamples = ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(Item.REGISTRY.iterator(), Spliterator.ORDERED), false)
                     .flatMap(item -> {
-                        NonNullList<ItemStack> stacks = NonNullList.create();
+                        final List<ItemStack> stacks = new ArrayList<>();
                         try
                         {
                             item.getSubItems(item, null, stacks);

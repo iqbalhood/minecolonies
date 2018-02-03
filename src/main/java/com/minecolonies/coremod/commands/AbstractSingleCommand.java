@@ -140,9 +140,9 @@ public abstract class AbstractSingleCommand implements ISubCommand
             case REFRESH_COLONY:
                 return Configurations.Gameplay.canPlayerUseRefreshColonyCommand;
             case MC_BACKUP:
-                return Configurations.gameplay.canPlayerUseBackupCommand;
+                return Configurations.Gameplay.canPlayerUseBackupCommand;
             case RSRESET:
-                return Configurations.requestSystem.canPlayerUseResetCommand;
+                return Configurations.RequestSystem.canPlayerUseResetCommand;
             default:
                 return false;
         }

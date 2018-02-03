@@ -65,7 +65,7 @@ public class ColonyPermissionEventHandler
     public void on(final BlockEvent.PlaceEvent event)
     {
         final Action action = event.getPlacedBlock().getBlock() instanceof AbstractBlockHut ? Action.PLACE_HUTS : Action.PLACE_BLOCKS;
-        if (Configurations.gameplay.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(), event.getPlacedBlock(), action))
+        if (Configurations.Gameplay.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(), event.getPlacedBlock(), action))
         {
             cancelEvent(event, event.getPlayer(), colony, action, event.getPos());
         }
@@ -152,7 +152,7 @@ public class ColonyPermissionEventHandler
     public void on(final BlockEvent.BreakEvent event)
     {
         final Action action = event.getWorld().getBlockState(event.getPos()).getBlock() instanceof AbstractBlockHut ? Action.BREAK_HUTS : Action.BREAK_BLOCKS;
-        if (Configurations.gameplay.enableColonyProtection
+        if (Configurations.Gameplay.enableColonyProtection
                 && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(), event.getWorld().getBlockState(event.getPos()), action))
         {
             cancelEvent(event, event.getPlayer(), colony, action, event.getPos());

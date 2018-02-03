@@ -62,12 +62,12 @@ public final class ColonyConstants
     /**
      * Distance of when to add new subscribers.
      */
-    public static final double MAX_SQ_DIST_SUBSCRIBER_UPDATE     = MathUtils.square(Configurations.gameplay.workingRangeTownHall + 16D);
+    public static final double MAX_SQ_DIST_SUBSCRIBER_UPDATE     = MathUtils.square(Configurations.Gameplay.workingRangeTownHall + 16D);
 
     /**
      * Distance of when to remove old subscribers.
      */
-    public static final double MAX_SQ_DIST_OLD_SUBSCRIBER_UPDATE = MathUtils.square(Configurations.gameplay.workingRangeTownHall * 2D);
+    public static final double MAX_SQ_DIST_OLD_SUBSCRIBER_UPDATE = MathUtils.square(Configurations.Gameplay.workingRangeTownHall * 2D);
 
     /**
      * Size of a chunk.

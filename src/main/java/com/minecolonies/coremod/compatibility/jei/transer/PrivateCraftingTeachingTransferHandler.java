@@ -35,6 +35,12 @@ public class PrivateCraftingTeachingTransferHandler implements IRecipeTransferHa
         return CraftingGUIBuilding.class;
     }
 
+    @Override
+    public String getRecipeCategoryUid()
+    {
+        return "";
+    }
+
     @Nullable
     @Override
     public IRecipeTransferError transferRecipe(

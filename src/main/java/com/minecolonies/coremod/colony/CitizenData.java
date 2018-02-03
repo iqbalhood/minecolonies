@@ -784,7 +784,7 @@ public class CitizenData
         buf.writeInt(colony.getID());
 
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.setTag("inventory", inventory.writeToNBT(new NBTTagList()));
+        inventory.writeToNBT(compound);
         ByteBufUtils.writeTag(buf, compound);
     }
 

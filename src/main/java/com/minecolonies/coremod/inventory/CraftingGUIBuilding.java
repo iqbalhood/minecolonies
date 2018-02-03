@@ -127,15 +127,15 @@ public class CraftingGUIBuilding extends Container
                     }
 
                     @Override
-                    public ItemStack onTake(final EntityPlayer player, final ItemStack stack)
+                    public void onPickupFromSlot(final EntityPlayer playerIn, final ItemStack stack)
                     {
-                        return ItemStack.EMPTY;
+                        //Don't pick up.
                     }
 
                     @Override
                     public ItemStack decrStackSize(final int par1)
                     {
-                        return ItemStack.EMPTY;
+                        return ItemStackUtils.EMPTY;
                     }
 
                     @Override
@@ -225,12 +225,12 @@ public class CraftingGUIBuilding extends Container
                 return handleSlotClick(slot, dropping);
             }
 
-            return ItemStack.EMPTY;
+            return ItemStackUtils.EMPTY;
         }
 
         if(mode == ClickType.QUICK_MOVE)
         {
-            return ItemStack.EMPTY;
+            return ItemStackUtils.EMPTY;
         }
 
         return super.slotClick(slotId, clickedButton, mode, playerIn);
@@ -238,18 +238,22 @@ public class CraftingGUIBuilding extends Container
 
     public ItemStack handleSlotClick(final Slot slot, final ItemStack stack)
     {
-        if (stack.getCount() > 0)
+        if (!ItemStackUtils.isEmpty(stack) && stack.stackSize > 0)
         {
             final ItemStack copy = stack.copy();
-            copy.setCount(1);
+            copy.stackSize = 1;
             slot.putStack(copy);
         }
-        else if (slot.getStack().getCount() > 0)
+        else if (!ItemStackUtils.isEmpty(slot.getStack()) && slot.getStack().stackSize > 0)
         {
-            slot.putStack(ItemStack.EMPTY);
+            slot.putStack(ItemStackUtils.EMPTY);
         }
 
-        return slot.getStack().copy();
+        if(!ItemStackUtils.isEmpty(slot.getStack()))
+        {
+            slot.getStack().copy();
+        }
+        return ItemStackUtils.EMPTY;
     }
 
     @Nullable
@@ -258,7 +262,7 @@ public class CraftingGUIBuilding extends Container
     {
         if (index <= CRAFTING_SLOTS)
         {
-            return ItemStack.EMPTY;
+            return ItemStackUtils.EMPTY;
         }
 
         ItemStack itemstack = ItemStackUtils.EMPTY;
@@ -291,7 +295,7 @@ public class CraftingGUIBuilding extends Container
                 return null;
             }
 
-            if (itemstack1.getCount() == 0)
+            if (itemstack1.stackSize == 0)
             {
                 slot.putStack(ItemStackUtils.EMPTY);
             }
@@ -300,12 +304,12 @@ public class CraftingGUIBuilding extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.getCount() == itemstack.getCount())
+            if (itemstack1.stackSize == itemstack.stackSize)
             {
                 return ItemStackUtils.EMPTY;
             }
 
-            slot.onTake(playerIn, itemstack1);
+            slot.onPickupFromSlot(playerIn, itemstack1);
         }
 
         return itemstack;

@@ -1030,7 +1030,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         }
 
         if (!new AxisAlignedBB(this.currentPosition).expand(1, 1, 1)
-               .intersects(new AxisAlignedBB(this.getPosition())) && !triedMovingAway)
+               .intersectsWith(new AxisAlignedBB(this.getPosition())) && !triedMovingAway)
         {
             stuckTime = 0;
             this.currentPosition = this.getPosition();
@@ -1147,7 +1147,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
 
         final RenderBipedCitizen.Model model = getModelID();
 
-        final String textureBase = "textures/entity/" + model.textureBase + (female ? "Female" : "Male");
+        final String textureBase = "textures/entity/" + model.textureBase + (female ? "female" : "male");
         final int moddedTextureId = (textureId % model.numTextures) + 1;
         texture = new ResourceLocation(Constants.MOD_ID, textureBase + moddedTextureId + renderMetadata + ".png");
     }
