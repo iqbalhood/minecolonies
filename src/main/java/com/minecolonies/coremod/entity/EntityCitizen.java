@@ -81,23 +81,26 @@ import static com.minecolonies.coremod.inventory.InventoryCitizen.TAG_ITEMS;
  */
 public class EntityCitizen extends EntityAgeable implements INpc
 {
-    private static final float CONST_BED_HEIGHT = 0.6875f;
-    private static final float CONST_HALF_BLOCK = 0.5f;
+    private static final float CONST_BED_HEIGHT             = 0.6875f;
+    private static final float CONST_HALF_BLOCK             = 0.5f;
     private static final float CONST_SLEEPING_RENDER_OFFSET = -1.5f;
 
-    private static final int NINETY_DEGREE = 90;
-    private static final int HALF_ROTATION = 180;
+    private static final int NINETY_DEGREE  = 90;
+    private static final int HALF_ROTATION  = 180;
     private static final int THREE_QUARTERS = 270;
 
-    private static final DataParameter<Integer> DATA_TEXTURE         = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DATA_LEVEL           = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DATA_IS_FEMALE       = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DATA_COLONY_ID       = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DATA_CITIZEN_ID      = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<String>  DATA_MODEL           = EntityDataManager.<String>createKey(EntityCitizen.class, DataSerializers.STRING);
-    private static final DataParameter<String>  DATA_RENDER_METADATA = EntityDataManager.<String>createKey(EntityCitizen.class, DataSerializers.STRING);
-    private static final DataParameter<Boolean> DATA_IS_ASLEEP = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<BlockPos> DATA_BED_POS = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.BLOCK_POS);
+    private static final int SPAWN_SEARCH_SIZE = 2;
+    private static final int PLAYER_HEIGHT     = 2;
+
+    private static final DataParameter<Integer>  DATA_TEXTURE         = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer>  DATA_LEVEL           = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer>  DATA_IS_FEMALE       = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer>  DATA_COLONY_ID       = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer>  DATA_CITIZEN_ID      = EntityDataManager.<Integer>createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<String>   DATA_MODEL           = EntityDataManager.<String>createKey(EntityCitizen.class, DataSerializers.STRING);
+    private static final DataParameter<String>   DATA_RENDER_METADATA = EntityDataManager.<String>createKey(EntityCitizen.class, DataSerializers.STRING);
+    private static final DataParameter<Boolean>  DATA_IS_ASLEEP       = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<BlockPos> DATA_BED_POS         = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.BLOCK_POS);
 
     private static Field navigatorField;
     @NotNull
@@ -106,13 +109,13 @@ public class EntityCitizen extends EntityAgeable implements INpc
     /**
      * The 4 lines of the latest status.
      */
-    private final ITextComponent[] latestStatus = new ITextComponent[MAX_LINES_OF_LATEST_LOG];
-    protected Status                   status  = Status.IDLE;
+    private final ITextComponent[]         latestStatus = new ITextComponent[MAX_LINES_OF_LATEST_LOG];
+    protected     Status                   status       = Status.IDLE;
     /**
      * The last job of the citizen.
      */
-    private   String                   lastJob = "";
-    private   RenderBipedCitizen.Model modelId = RenderBipedCitizen.Model.SETTLER;
+    private       String                   lastJob      = "";
+    private       RenderBipedCitizen.Model modelId      = RenderBipedCitizen.Model.SETTLER;
     private String           renderMetadata;
     private ResourceLocation texture;
     private int              colonyId;
@@ -751,7 +754,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
 
         if (CompatibilityUtils.getWorld(this).isRemote)
         {
-            if(player.isSneaking())
+            if (player.isSneaking())
             {
                 MineColonies.getNetwork().sendToServer(new OpenInventoryMessage(this.getName(), this.getEntityId()));
             }
@@ -779,7 +782,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         dataManager.register(DATA_MODEL, RenderBipedCitizen.Model.SETTLER.name());
         dataManager.register(DATA_RENDER_METADATA, "");
         dataManager.register(DATA_IS_ASLEEP, false);
-        dataManager.register(DATA_BED_POS, new BlockPos(0,0,0));
+        dataManager.register(DATA_BED_POS, new BlockPos(0, 0, 0));
     }
 
     @Override
@@ -947,7 +950,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         for (final Object o :
           CompatibilityUtils.getWorld(this).
                                              getEntitiesWithinAABB(EntityItem.class,
-                                               new AxisAlignedBB(getPosition()).expand(2.0F, 1.0F, 2.0F)))
+                                               new AxisAlignedBB(getPosition()).expand(2.0F, 1.0F, 2.0F).expand(-2.0F, -1.0F, -2.0F)))
         {
             if (o instanceof EntityItem)
             {
@@ -981,7 +984,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
     @Override
     public void setCustomNameTag(final String name)
     {
-        if(citizenData != null && name != null)
+        if (citizenData != null && name != null)
         {
             if(!name.contains(citizenData.getName()) && Configurations.Gameplay.allowGlobalNameChanges >= 0)
             {
@@ -1027,7 +1030,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         }
 
         if (!new AxisAlignedBB(this.currentPosition).expand(1, 1, 1)
-               .intersectsWith(new AxisAlignedBB(this.getPosition())) && !triedMovingAway)
+               .intersects(new AxisAlignedBB(this.getPosition())) && !triedMovingAway)
         {
             stuckTime = 0;
             this.currentPosition = this.getPosition();
@@ -1177,7 +1180,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         if (citizenData != null)
         {
             if (citizenHutLevel < citizenHutMaxLevel
-                && Math.pow(2.0, citizenHutLevel + 1.0) <= this.citizenData.getLevel())
+                  && Math.pow(2.0, citizenHutLevel + 1.0) <= this.citizenData.getLevel())
             {
                 return;
             }
@@ -1483,6 +1486,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
 
     /**
      * Attempts a sleep interaction with the citizen and the given bed.
+     *
      * @param bedLocation The possible location to sleep.
      */
     public void trySleep(final BlockPos bedLocation)
@@ -1495,7 +1499,9 @@ public class EntityCitizen extends EntityAgeable implements INpc
             return;
         }
 
-        this.setPosition((double)((float)bedLocation.getX() + CONST_HALF_BLOCK), (double)((float)bedLocation.getY() + CONST_BED_HEIGHT), (double)((float)bedLocation.getZ() + CONST_HALF_BLOCK));
+        this.setPosition((double) ((float) bedLocation.getX() + CONST_HALF_BLOCK),
+          (double) ((float) bedLocation.getY() + CONST_BED_HEIGHT),
+          (double) ((float) bedLocation.getZ() + CONST_HALF_BLOCK));
 
         this.motionX = 0.0D;
         this.motionY = 0.0D;
@@ -1527,7 +1533,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
             return 0;
         }
 
-        return CONST_SLEEPING_RENDER_OFFSET * (float)enumfacing.getFrontOffsetX();
+        return CONST_SLEEPING_RENDER_OFFSET * (float) enumfacing.getFrontOffsetX();
     }
 
     public float getRenderOffsetZ()
@@ -1546,7 +1552,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
             return 0;
         }
 
-        return CONST_SLEEPING_RENDER_OFFSET * (float)enumfacing.getFrontOffsetZ();
+        return CONST_SLEEPING_RENDER_OFFSET * (float) enumfacing.getFrontOffsetZ();
     }
 
     /**
@@ -1616,9 +1622,9 @@ public class EntityCitizen extends EntityAgeable implements INpc
         {
             final Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> corners = homeBuilding.getCorners();
             return new AxisAlignedBB(corners.getFirst().getFirst(), posY - 1, corners.getSecond().getFirst(),
-                    corners.getFirst().getSecond(),
-                    posY + 1,
-                    corners.getSecond().getSecond()).intersectsWithXZ(new Vec3d(this.getPosition()));
+              corners.getFirst().getSecond(),
+              posY + 1,
+              corners.getSecond().getSecond()).intersectsWithXZ(new Vec3d(this.getPosition()));
         }
 
         @Nullable final BlockPos homePosition = getHomePosition();
@@ -1923,7 +1929,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
                 MineColonies.getNetwork().sendToAllAround(
                   new BlockParticleEffectMessage(blockPos, CompatibilityUtils.getWorld(this).getBlockState(blockPos), BlockParticleEffectMessage.BREAK_BLOCK),
                   new NetworkRegistry.TargetPoint(CompatibilityUtils.getWorld(this).provider.getDimension(),
-                                                   blockPos.getX(), blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_SOUND_RANGE));
+                    blockPos.getX(), blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_SOUND_RANGE));
             }
             CompatibilityUtils.getWorld(this).playSound(null,
               blockPos,
@@ -1945,7 +1951,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
                 MineColonies.getNetwork().sendToAllAround(
                   new BlockParticleEffectMessage(blockPos, CompatibilityUtils.getWorld(this).getBlockState(blockPos), facing.ordinal()),
                   new NetworkRegistry.TargetPoint(CompatibilityUtils.getWorld(this).provider.getDimension(), blockPos.getX(),
-                                                   blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_PARTICLE_RANGE));
+                    blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_PARTICLE_RANGE));
             }
             CompatibilityUtils.getWorld(this).playSound((EntityPlayer) null,
               blockPos,
@@ -2072,7 +2078,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
             setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.working"));
             this.getWorkBuilding().onWakeUp();
         }
-        if(this.getColonyJob() != null)
+        if (this.getColonyJob() != null)
         {
             this.getColonyJob().onWakeUp();
         }
@@ -2083,8 +2089,27 @@ public class EntityCitizen extends EntityAgeable implements INpc
             homeBuilding.onWakeUp();
         }
 
+        final BlockPos spawn = Utils.scanForBlockNearPoint(
+          world,
+          getBedLocation(),
+          4,
+          2,
+          4,
+          PLAYER_HEIGHT,
+          Blocks.AIR,
+          Blocks.SNOW_LAYER,
+          Blocks.TALLGRASS,
+          Blocks.RED_FLOWER,
+          Blocks.YELLOW_FLOWER,
+          Blocks.CARPET);
+
+        if (spawn != null)
+        {
+            setPosition(spawn.getX(), spawn.getY(), spawn.getZ());
+        }
+
         setIsAsleep(false);
-        dataManager.set(DATA_BED_POS, new BlockPos(0,0,0));
+        dataManager.set(DATA_BED_POS, new BlockPos(0, 0, 0));
     }
 
     /**
@@ -2151,6 +2176,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
 
     /**
      * Get the path proxy of the citizen.
+     *
      * @return the proxy.
      */
     public IWalkToProxy getProxy()
