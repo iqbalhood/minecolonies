@@ -537,7 +537,10 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
         result1 = 31 * result1 + getState().hashCode();
         result1 = 31 * result1 + (getResult() != null ? getResult().hashCode() : 0);
         result1 = 31 * result1 + (getParent() != null ? getParent().hashCode() : 0);
-        result1 = 31 * result1 + deliveryStack.hashCode();
+        if(!ItemStackUtils.isEmpty(deliveryStack))
+        {
+            result1 = 31 * result1 + deliveryStack.hashCode();
+        }
         return result1;
     }
 }

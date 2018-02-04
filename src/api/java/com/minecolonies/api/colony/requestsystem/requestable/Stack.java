@@ -156,7 +156,8 @@ public class Stack implements IDeliverable
     {
         this.matchOreDic = match;
         return this;
-    }    @NotNull
+    }
+
     @Override
     public ItemStack getResult()
     {
@@ -203,7 +204,10 @@ public class Stack implements IDeliverable
         result1 = 31 * result1 + (matchMeta ? 1 : 0);
         result1 = 31 * result1 + (matchNBT ? 1 : 0);
         result1 = 31 * result1 + (matchOreDic ? 1 : 0);
-        result1 = 31 * result1 + getResult().hashCode();
+        if(!ItemStackUtils.isEmpty(getResult()))
+        {
+            result1 = 31 * result1 + getResult().hashCode();
+        }
         return result1;
     }
 }

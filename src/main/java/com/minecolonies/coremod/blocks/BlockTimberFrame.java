@@ -103,7 +103,7 @@ public class BlockTimberFrame extends AbstractBlockMinecolonies<BlockTimberFrame
     }
 
     @Override
-    public void getSubBlocks(@NotNull final Item itemIn, @NotNull final CreativeTabs tab, @NotNull final List<ItemStack> list)
+    public void getSubBlocks(@NotNull final Item itemIn, final CreativeTabs tab, @NotNull final List<ItemStack> list)
     {
         for (final TimberFrameType type : TimberFrameType.values())
         {
