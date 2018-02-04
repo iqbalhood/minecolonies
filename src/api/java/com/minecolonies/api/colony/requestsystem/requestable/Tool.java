@@ -8,7 +8,6 @@ import com.minecolonies.api.util.constant.ToolType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -245,7 +244,10 @@ public class Tool implements IDeliverable
         int result1 = getToolClass().hashCode();
         result1 = 31 * result1 + getMinLevel().hashCode();
         result1 = 31 * result1 + getMaxLevel().hashCode();
-        result1 = 31 * result1 + getResult().hashCode();
+        if(!ItemStackUtils.isEmpty(getResult()))
+        {
+            result1 = 31 * result1 + getResult().hashCode();
+        }
         return result1;
     }
 }
