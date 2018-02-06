@@ -54,7 +54,7 @@ public class PrivateWorkerCraftingRequestResolver extends AbstractCraftingReques
             }
         }
 
-        if (request.getRequester() instanceof IBuildingBasedRequester)
+        if (request.getRequester() instanceof IBuildingBasedRequester && request.getRequester() != this)
         {
             return ((IBuildingBasedRequester) request.getRequester()).getBuilding(manager, token);
         }
