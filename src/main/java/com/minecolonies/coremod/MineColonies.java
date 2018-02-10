@@ -82,6 +82,8 @@ public class MineColonies
     {
         try
         {
+            // NOTE: while this runs, it doesn't seem to pick up the local config file changes.
+            
             final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
             final org.apache.logging.log4j.core.config.Configuration originalConfiguration = loggerContext.getConfiguration();
 
