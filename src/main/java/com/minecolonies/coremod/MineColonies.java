@@ -1,5 +1,6 @@
 package com.minecolonies.coremod;
 
+import com.google.common.collect.Lists;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.coremod.achievements.ModAchievements;
@@ -27,6 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,10 +38,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.composite.CompositeConfiguration;
 import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +75,7 @@ public class MineColonies
      * Adds Appenders and non-root loggers to the existing logging Configuration.
      * Root logger is ignored.
      * Currently does not support Filters or properties on Loggers.
-     * 
+     *
      * @param log4jConfigFile file name to read.
      */
     private static void updateLog4jConfiguration(final String log4jConfigFile)
@@ -77,97 +83,28 @@ public class MineColonies
         try
         {
             final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-            final org.apache.logging.log4j.core.config.Configuration configuration = loggerContext.getConfiguration();
-            LoggerConfig parentLoggerConfig = configuration.getRootLogger();
+            final org.apache.logging.log4j.core.config.Configuration originalConfiguration = loggerContext.getConfiguration();
+
+            final ConfigurationSource originalConfigurationSource = originalConfiguration.getConfigurationSource();
+            final URI originalConfigurationURI = originalConfigurationSource.getURI();
+            org.apache.logging.log4j.core.config.Configuration originalConfigurationReloaded = null;
+            if (originalConfigurationSource != null)
+            {
+                final String name = "doesn't matter, not used";
+                originalConfigurationReloaded = ConfigurationFactory.getInstance().getConfiguration(loggerContext, name, originalConfigurationURI);
+            }
 
             final ConfigurationSource localConfigurationSource = new ConfigurationSource(new FileInputStream(log4jConfigFile), new File(log4jConfigFile));
-            final XmlConfiguration localXmlConfiguration = new XmlConfiguration(null, localConfigurationSource);
+            // Warning: current configuration being destroyed at this point.
+            final org.apache.logging.log4j.core.config.Configuration localConfiguration
+                = ConfigurationFactory.getInstance().getConfiguration(loggerContext, localConfigurationSource);
+            // Bad generics.  <Configuration> is not compatible with <? extends AbstractConfiguration>
+            final List configurationList = new ArrayList<>(2);
+            configurationList.add(originalConfigurationReloaded);
+            configurationList.add(localConfiguration);
+            CompositeConfiguration compositeConfiguration = new CompositeConfiguration(configurationList);
 
-            localXmlConfiguration.initialize();
-            localXmlConfiguration.setup();
-            localXmlConfiguration.start();
-
-            final Map<String, Appender> localAppenders = localXmlConfiguration.getAppenders();
-            final Map<String, LoggerConfig> localLoggers = localXmlConfiguration.getLoggers();
-            final Collection<Appender> localAppenderList = localAppenders.values();
-            for (final Appender appender : localAppenderList)
-            {
-                configuration.addAppender(appender);
-            }
-
-            LoggerConfig localRootLoggerConfig = null;
-            final List<LoggerConfig> newLoggerConfigList = new ArrayList<>();
-            
-            for (final LoggerConfig localFileProvidedLoggerConfig : localLoggers.values())
-            {
-                final List<AppenderRef> appenderRefsList = localFileProvidedLoggerConfig.getAppenderRefs();
-                final AppenderRef[] appenderRefsArray;
-                if (null != appenderRefsList)
-                {
-                    appenderRefsArray = appenderRefsList.toArray(new AppenderRef[appenderRefsList.size()]);
-                }
-                else
-                {
-                    appenderRefsArray = new AppenderRef[0];
-                }
-                final List<Property> propertyList = localFileProvidedLoggerConfig.getPropertyList();
-                final Property[] propertyArray;
-                if (null != propertyList)
-                {
-                    propertyArray = propertyList.toArray(new Property[propertyList.size()]);
-                }
-                else
-                {
-                    propertyArray = new Property[0];
-                }
-                final LoggerConfig newLoggerConfig = LoggerConfig.createLogger(localFileProvidedLoggerConfig.isAdditive(),
-                        localFileProvidedLoggerConfig.getLevel(),
-                        localFileProvidedLoggerConfig.getName(),
-                        String.valueOf(localFileProvidedLoggerConfig.isIncludeLocation()),
-                        appenderRefsArray, propertyArray,
-                        configuration,
-                        localFileProvidedLoggerConfig.getFilter());
-
-                for (final AppenderRef appenderRef : appenderRefsList)
-                {
-                    final Appender appender = localAppenders.get(appenderRef.getRef());
-                    if (null != appender)
-                    {
-                        newLoggerConfig.addAppender(appender, null, null);
-                    }
-                    else
-                    {
-                        // TODO: handle logger missing appender configuration error
-                    }
-                }
-
-                if (newLoggerConfig.getName().isEmpty())
-                {
-                    if (null != localRootLoggerConfig)
-                    {
-                        // TODO: handle multiple root loggers configuration error
-                    }
-                    localRootLoggerConfig = newLoggerConfig;
-                }
-                
-                newLoggerConfig.setLevel(newLoggerConfig.getLevel());
-                newLoggerConfigList.add(newLoggerConfig);
-            }
-
-//            if (null != localRootLoggerConfig)
-//            {
-//                localRootLoggerConfig.setParent(parentLoggerConfig);
-//                parentLoggerConfig = localRootLoggerConfig;
-//                configuration.addLogger(localRootLoggerConfig.getName(), localRootLoggerConfig);
-//            }
-
-            for (LoggerConfig newLoggerConfig : newLoggerConfigList)
-            {
-                newLoggerConfig.setParent(parentLoggerConfig);
-                configuration.addLogger(newLoggerConfig.getName(), newLoggerConfig);
-            }
-
-            loggerContext.updateLoggers();
+            Configurator.initialize(compositeConfiguration);
         }
         catch (final Exception e)
         {
