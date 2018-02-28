@@ -26,7 +26,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServerMulti;
 import net.minecraft.world.chunk.Chunk;
@@ -107,7 +106,7 @@ public final class ColonyManager
     /**
      * chunk filename.
      */
-    private static final String FILENAME_CHUNK = "chunk-%d_%d_%d";
+    public static final String FILENAME_CHUNK = "chunk-%d_%d_%d";
 
     /**
      * The damage source used to kill citizens.
@@ -229,46 +228,11 @@ public final class ColonyManager
         }
         centralChunk.markDirty();
         MineColonies.getNetwork().sendToAll(new UpdateChunkCapabilityMessage(centralChunk.getCapability(CLOSE_COLONY_CAP, null), centralChunk.x, centralChunk.z));
-
-        final int chunkX = centralChunk.x;
-        final int chunkZ = centralChunk.z;
-
-        final int range = Configurations.gameplay.workingRangeTownHallChunks;
-        final int buffer = Configurations.gameplay.townHallPaddingChunk;
-
-        final int maxRange = range * 2 + buffer;
-        @NotNull final File chunkDir = new File(DimensionManager.getWorld(0).getSaveHandler().getWorldDirectory(), CHUNK_INFO_PATH);
-        Utils.checkDirectory(chunkDir);
-
-        for(int i = chunkX - maxRange; i <= chunkX + maxRange; i++)
-        {
-            for (int j = chunkZ - maxRange; j <= chunkZ + maxRange; j++)
-            {
-                final boolean owning = i >= chunkX - range && j >= chunkZ - range && i <= chunkX + range && j <= chunkZ + range;
-                @NotNull final ChunkLoadStorage newStorage = new ChunkLoadStorage(id, ChunkPos.asLong(i, j), add, dimension, owning);
-                @NotNull final File file = new File(chunkDir, String.format(FILENAME_CHUNK, i, j, dimension));
-                if (file.exists())
-                {
-                    @Nullable final NBTTagCompound chunkData = loadNBTFromPath(file);
-                    final ChunkLoadStorage storage = new ChunkLoadStorage(chunkData);
-                    storage.merge(newStorage);
-                    if (storage.isEmpty())
-                    {
-                        file.delete();
-                    }
-                    else
-                    {
-                        saveNBTToPath(file, newStorage.toNBT());
-                        missingChunksToLoad++;
-                    }
-                }
-                else
-                {
-                    saveNBTToPath(file, newStorage.toNBT());
-                    missingChunksToLoad++;
-                }
-            }
-        }
+        final LoadColonyThread thread = new LoadColonyThread(centralChunk.x, centralChunk.z, id, dimension, add);
+        thread.start();
+        missingChunksToLoad = thread.getMissingChunksToLoad();
+        //todo store thread in ColonyManager and get value each time we need "missingChunksToLoad", if thread is null, then no need to get it
+        //todo on shut down do thread.join and then get missingChunksToLoad
     }
 
     /**
@@ -1042,7 +1006,7 @@ public final class ColonyManager
      * @param file The path to the file.
      * @return the data from the file as an NBTTagCompound, or null.
      */
-    private static NBTTagCompound loadNBTFromPath(@Nullable final File file)
+    public static NBTTagCompound loadNBTFromPath(@Nullable final File file)
     {
         try
         {
