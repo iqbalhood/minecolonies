@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "minecolonies:blocks/cactus/cactus_planks",
+    "up": "minecolonies:blocks/cactus/cactus_planks",
+    "down": "minecolonies:blocks/cactus/cactus_planks",
+    "south": "minecolonies:blocks/cactus/cactus_planks",
+    "west": "minecolonies:blocks/cactus/cactus_planks",
+    "east": "minecolonies:blocks/cactus/cactus_planks",
+    "north": "minecolonies:blocks/cactus/cactus_planks"
+  }
+}
