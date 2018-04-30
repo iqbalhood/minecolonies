@@ -49,6 +49,7 @@ public final class ModBlocks
     public static BlockHutCook                blockHutCook;
     public static BlockHutSmeltery            blockHutSmeltery;
     public static BlockCactusPlanks           blockCactusPlanks;
+    public static BlockCactusPlanksStairs     blockCactusPlanksStairs;
 
     /**
      * Utility blocks.
@@ -114,6 +115,7 @@ public final class ModBlocks
         blockHutCook   = new BlockHutCook().registerBlock(registry);
         blockHutSmeltery = new BlockHutSmeltery().registerBlock(registry);
         blockCactusPlanks = new BlockCactusPlanks().registerBlock(registry);
+        blockCactusPlanksStairs = new BlockCactusPlanksStairs().registerBlock(registry);
 
         blockShingleOak = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK),
                 BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.OAK.getName()).registerBlock(registry);
@@ -178,6 +180,7 @@ public final class ModBlocks
         blockShingleSlab.registerItemBlock(registry);
         blockHutSmeltery.registerItemBlock(registry);
         blockCactusPlanks.registerItemBlock(registry);
+        blockCactusPlanksStairs.registerItemBlock(registry);
         multiBlock.registerItemBlock(registry);
 
         for (final BlockTimberFrame frame: timberFrames)
